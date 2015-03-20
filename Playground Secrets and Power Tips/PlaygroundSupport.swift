@@ -1,6 +1,8 @@
 /*
-  ericasadun.com
-  Playground Support: Add to module in same workspace as the playground
+
+ericasadun.com
+Playground Support: Add to playground's Sources folder
+
 */
 
 import Foundation
@@ -21,7 +23,7 @@ public let processInfo = NSProcessInfo.processInfo()
 public let processEnvironment = processInfo.environment
 
 // Keys in the environment dictionary for quick reference
-public let environmentKeys = NSProcessInfo.processInfo().environment.keys.array
+public let environmentKeys = processInfo.environment.keys.array
 
 // Playground name (Used later to create a private documents folder)
 public let playgroundName : String = (processEnvironment["PLAYGROUND_NAME"] ?? NSProcessInfo.processInfo().processName) as! String
@@ -45,16 +47,13 @@ public let playgroundName : String = (processEnvironment["PLAYGROUND_NAME"] ?? N
 public let bundlePath = NSBundle.mainBundle().bundlePath
 public let resourcePath = NSBundle.mainBundle().resourcePath ?? bundlePath
 
-// Bundle contents (currently only working on iOS)
+// Bundle and Resource contents if available
 public let bundleContents = fileManager.contentsOfDirectoryAtPath(bundlePath, error: nil) ?? []
-
-// Resource contents (currently only working on iOS)
 public let resourceContents = fileManager.contentsOfDirectoryAtPath(resourcePath, error: nil) ?? []
 
-// The playground's executable inside the generated app
+// The application and embedded executable
 public let executablePath = NSBundle.mainBundle().executablePath
-
-// Name of the playground's app
+public let appPath = executablePath?.stringByDeletingLastPathComponent
 public let appName = bundlePath.lastPathComponent
 
 // Access to the bundle's Info.plist dictionary
@@ -65,28 +64,29 @@ public let infoDictionary = NSBundle.mainBundle().infoDictionary
 // The shared playground data in the user Documents foler
 //------------------------------------------------------------------------------
 
+// The document path INSIDE THE SANDBOX
+public let documentPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as! NSString
+public let sharedDataPath = documentPath.stringByAppendingPathComponent("Shared Playground Data")
+
 // The Shared Playground Data folder OUTSIDE THE SANDBOX
 public let sharedDataFolder = (processEnvironment["PLAYGROUND_SHARED_DATA_FOLDER"] ?? "~/Documents/Shared Playground Data") as! String
 
 //------------------------------------------------------------------------------
 // MARK: Documents
-// Return paths to the playground's documents folder
+// Return paths to the playground's documents folder by
+// stepping down the path from NSHomeDirectory()
 //------------------------------------------------------------------------------
 
 #if os (iOS)
-// The Shared Resources Folder for the simulator
-// Typically ~/Library/Application Support/iPhone Simulator
-public let sharedResourcesFolder = (processEnvironment["IPHONE_SHARED_RESOURCES_DIRECTORY"] ?? "?") as! String
+    // The Shared Resources Folder for the simulator
+    // Typically ~/Library/Application Support/iPhone Simulator
+    public let sharedResourcesFolder = (processEnvironment["IPHONE_SHARED_RESOURCES_DIRECTORY"] ?? "?") as! String
 #endif
 
-// Sandbox root
+// The shared data from within the documents in the sandbox
 public let homeFolder = NSHomeDirectory()
-
-// From the root to the documents folder in the playground's sandbox
 public let documentsFolder = NSHomeDirectory().stringByAppendingPathComponent("Documents")
-
-// The shared data within the documents in the sandbox
-public let playgroundDocumentsFolder = documentsFolder.stringByAppendingPathComponent("Shared Playground Data")
+public let playgroundDocumentFolder = documentsFolder.stringByAppendingPathComponent("Shared Playground Data")
 
 //------------------------------------------------------------------------------
 // MARK: Custom Subfolder
@@ -96,14 +96,16 @@ public let playgroundDocumentsFolder = documentsFolder.stringByAppendingPathComp
 //------------------------------------------------------------------------------
 
 // From the shared data into a playground-named subfolder
-public let myDocumentsFolder = playgroundDocumentsFolder.stringByAppendingPathComponent(playgroundName)
+public let myDocumentsFolder = sharedDataPath.stringByAppendingPathComponent(playgroundName)
 
 /// Create a playground-named subfolder in the shared playground data folder
 public func EstablishMyDocumentsFolder() -> Bool {
     return fileManager.createDirectoryAtPath(myDocumentsFolder, withIntermediateDirectories: true, attributes: nil, error: nil)
 }
 
-/// Return contents of a custom playground-named subfolder
+/// Return contents of custom playground-named subfolder
+/// The subfolder is created if it does not already exist
 public func ContentsOfMyDocumentsFolder() -> [AnyObject]? {
+    if !fileManager.fileExistsAtPath(myDocumentsFolder) {EstablishMyDocumentsFolder()}
     return fileManager.contentsOfDirectoryAtPath(myDocumentsFolder, error: nil)
 }
