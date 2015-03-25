@@ -53,7 +53,11 @@ public let resourceContents = fileManager.contentsOfDirectoryAtPath(resourcePath
 
 // The application and embedded executable
 public let executablePath = NSBundle.mainBundle().executablePath
-public let appPath = executablePath?.stringByDeletingLastPathComponent
+#if os(iOS)
+    public let appPath = NSBundle.mainBundle().executablePath?.stringByDeletingLastPathComponent
+    #else
+    public let appPath = NSBundle.mainBundle().executablePath?.stringByDeletingLastPathComponent.stringByDeletingLastPathComponent.stringByDeletingLastPathComponent
+#endif
 public let appName = bundlePath.lastPathComponent
 
 // Access to the bundle's Info.plist dictionary
@@ -77,7 +81,7 @@ public let sharedDataFolder = (processEnvironment["PLAYGROUND_SHARED_DATA_FOLDER
 // stepping down the path from NSHomeDirectory()
 //------------------------------------------------------------------------------
 
-#if os (iOS)
+#if os(iOS)
     // The Shared Resources Folder for the simulator
     // Typically ~/Library/Application Support/iPhone Simulator
     public let sharedResourcesFolder = (processEnvironment["IPHONE_SHARED_RESOURCES_DIRECTORY"] ?? "?") as! String
