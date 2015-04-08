@@ -2,4 +2,4 @@
 
 # Playground Secrets and Power Tips
 
-Read the book: [http://www.amazon.com/dp/B00UM8M238](http://www.amazon.com/dp/B00UM8M238)
+Read the book: [https://itunes.apple.com/us/book/playground-secrets-power-tips/id982838034](https://itunes.apple.com/us/book/playground-secrets-power-tips/id982838034) Fully updated with double the coverage, now in iTunes
