@@ -9,3 +9,5 @@ Email me:
 * If there's a sample you need help updating
 
 Read the book: [iTunes](https://itunes.apple.com/us/book/playground-secrets-power-tips/id982838034). 
+
+Playground Support Repo: [SwiftPlaygrounds](https://github.com/erica/SwiftPlaygrounds)
